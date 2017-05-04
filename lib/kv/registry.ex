@@ -1,8 +1,8 @@
 defmodule KV.Registry do
   use GenServer
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok, [])
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, :ok, name: name)
   end
 
   def lookup(server, name) do
@@ -31,7 +31,7 @@ defmodule KV.Registry do
     if Map.has_key?(names, name) do
       {:noreply, state}
     else
-      {:ok, bucket} = KV.Bucket.start_link()
+      {:ok, bucket} = KV.BucketSupervisor.start_bucket()
       ref = Process.monitor(bucket)
       refs = Map.put(refs, ref, name)
       names = Map.put(names, name, bucket)
